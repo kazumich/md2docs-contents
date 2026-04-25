@@ -1,0 +1,14 @@
+categories:
+  getting-started:
+    label: "はじめに"
+    description: "md2docs の概要とセットアップ手順。"
+  guide:
+    label: "ガイド"
+    description: "日々の運用で使う機能と記事執筆のガイド。"
+    categories:
+      basics:
+        label: "基本"
+        description: "まず押さえておきたい基本操作。"
+  reference:
+    label: "リファレンス"
+    description: "設定・テンプレート変数・CLI コマンドの詳細リファレンス。"

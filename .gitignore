@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Claude Code
+.claude/
+memory/
+
+# 開発作業のローカルメモ
+/tasks/
+/log/
