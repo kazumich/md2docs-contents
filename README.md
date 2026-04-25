@@ -6,17 +6,25 @@
 
 ## クイックスタート（執筆者向け）
 
+### 方法 A: GitHub Web UI で直接編集
+
+1. リポジトリで該当の `.md` ファイルを開く
+2. 鉛筆アイコン (✏️) で編集
+3. ページ下部「Commit changes」でコミット
+4. `main` への変更は数分で本番サイトに反映
+
+軽い修正なら一番簡単。Markdown プレビューも GitHub 上で見られます。
+
+### 方法 B: ローカルで編集
+
 ```bash
 git clone https://github.com/kazumich/md2docs-contents.git
 cd md2docs-contents
 ```
 
-1. `contents/` 配下の Markdown を編集する（または新規作成）
+1. `contents/` 配下の Markdown を編集
 2. 普通の git 操作でコミット → push
 3. **`main` への push で自動デプロイ**（GitHub Actions が XSERVER に FTP）
-4. 数分後、本番サイトに反映される
-
-セットアップは以上。ローカル PHP サーバを動かす必要はありません。
 
 ## ディレクトリ構成
 
@@ -24,19 +32,14 @@ cd md2docs-contents
 md2docs-contents/
 ├── contents/               # 記事本体 (Markdown)
 │   ├── getting-started/
-│   │   ├── introduction.md
-│   │   ├── installation.md
-│   │   └── ...
+│   │   └── *.md
 │   ├── guide/
-│   │   ├── writing-articles.md
-│   │   ├── basics/         # サブカテゴリ可
-│   │   │   └── ...
-│   │   └── ...
+│   │   ├── *.md
+│   │   └── basics/         # サブカテゴリ可 (任意の深さ)
+│   │       └── *.md
 │   └── reference/
-│       └── ...
-├── categories.yaml         # トップレベル & サブのラベル・並び順定義
-└── .github/workflows/
-    └── deploy.yml          # 自動 FTP デプロイ
+│       └── *.md
+└── categories.yaml         # トップレベル & サブのラベル・並び順定義
 ```
 
 URL は `contents/{セクション}/{ファイル名}.html` の形式でそのまま反映：
@@ -87,81 +90,8 @@ tags: ["intro", "setup"]
 [インストール](/getting-started/installation.md) を参照してください。
 ```
 
-執筆ルールの詳細は本番サイトの「ガイド」セクションを参照してください。
+執筆ルールの詳細は本番サイトの「ガイド」セクションを参照してください: <https://md2docs.a-blog.jp/guide/>
 
-## 推奨ワークフロー
+## さらに詳しい運用
 
-### 単発の修正
-
-```bash
-# 1. main ブランチで作業
-git pull origin main
-$EDITOR contents/guide/some-article.md
-
-# 2. コミットして push
-git add contents/guide/some-article.md
-git commit -m "fix: typo in some-article"
-git push origin main
-```
-
-→ Actions が走り、数分で本番反映。
-
-### 複数人でレビューしたい記事
-
-```bash
-# 1. 作業ブランチを作る
-git checkout -b add/new-feature-doc
-$EDITOR contents/guide/new-feature.md
-git add . && git commit -m "add: new-feature.md"
-git push -u origin add/new-feature-doc
-
-# 2. GitHub で Pull Request を作成 → レビュー後マージ
-```
-
-→ main にマージされると Actions が走り、本番反映。
-
-> [!NOTE]
-> このリポジトリは GitHub Web UI からも直接編集可能です。`.md` ファイルを開いて鉛筆アイコンをクリックすれば、ブラウザだけで編集 → コミットができます。Markdown プレビューも GitHub 上で見られます。
-
-## GitHub Secrets の設定（初回セットアップのみ）
-
-リポジトリ管理者が一度だけ実施します。
-
-**Settings → Secrets and variables → Actions → New repository secret** で以下を登録：
-
-| Secret 名 | 値 |
-|----------|-----|
-| `FTP_SERVER` | XSERVER の FTP ホスト（例: `svXXXX.xserver.jp`） |
-| `FTP_USERNAME` | FTP ユーザー名 |
-| `FTP_PASSWORD` | FTP パスワード |
-| `FTP_DEPLOY_PATH` | デプロイ先絶対パス（例: `/example.com/public_html/git2docs/`） |
-
-設定後、`main` への push で自動デプロイが走ります。
-
-## ローカルプレビュー（任意・エンジニア向け）
-
-実機 XSERVER に上げる前にローカルで確認したい場合のみ：
-
-```bash
-# 1. md2docs エンジン側を clone
-cd ..
-git clone https://github.com/kazumich/md2docs.git
-cd md2docs
-
-# 2. 依存をインストール
-composer install
-npm install
-npm run build
-
-# 3. このリポジトリのコンテンツをエンジンに差し込む
-rm -rf contents config/categories.yaml
-ln -s ../md2docs-contents/contents contents
-ln -s ../md2docs-contents/categories.yaml config/categories.yaml
-
-# 4. ローカルサーバ起動
-php -S localhost:8080 -t public
-```
-
-ブラウザで http://localhost:8080/ を開けば自分のコンテンツでプレビューできます。
-
-ただし**この手順は必須ではありません**。Markdown は GitHub Web UI でプレビューできますし、変更はブランチ・PR で確認できます。
+ブランチ運用・PR レビュー・ローカルプレビュー・デプロイ設定などの詳細は、エンジン側のドキュメントを参照してください: [kazumich/md2docs](https://github.com/kazumich/md2docs)
