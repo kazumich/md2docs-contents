@@ -11,8 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout (full history needed for `git log`)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 0 = 全履歴取得 (各 .md の最終コミット日時を取るため)
+
+      - name: Inject last-commit datetime into each .md frontmatter
+        run: |
+          set -eu
+          # contents/ 配下の .md について、git log の最終コミット日時を取得し
+          # frontmatter の `date:` 行を上書きする (本番にだけ反映、リポには戻さない)
+          find contents -name '*.md' -type f | while read -r f; do
+            ts=$(git log -1 --format='%cd' --date=format:'%Y-%m-%d %H:%M:%S' -- "$f")
+            if [ -n "$ts" ] && grep -q '^date:' "$f"; then
+              sed -i "s|^date: .*$|date: \"$ts\"|" "$f"
+              echo "  $f → $ts"
+            fi
+          done
 
       - name: FTP deploy (contents/ + categories.yaml)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
